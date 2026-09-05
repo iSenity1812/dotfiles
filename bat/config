@@ -1,0 +1,4 @@
+--style=numbers,changes,header,grid
+--theme="Dracula"
+--paging=auto
+--decorations=always

@@ -1,0 +1,114 @@
+# ~/dotfiles/ghostty/config.ghostty
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Ghostty — Ubuntu + Fish
+# Catppuccin Mocha / Minimal Dev Setup
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+# ─── Font ─────────────────────────────────────────────
+
+font-family = Hack Nerd Font Mono
+font-size = 13
+
+adjust-cell-height = 2
+
+font-feature = -calt
+font-feature = -liga
+font-feature = -dlig
+
+
+# ─── Theme ────────────────────────────────────────────
+
+theme = Catppuccin Mocha
+
+
+# ─── Cursor ────────────────────────────────────────────
+
+cursor-color = #f5c2e7
+cursor-text = #11111b
+cursor-style = block
+cursor-style-blink = false
+
+
+# ─── Window ────────────────────────────────────────────
+
+window-padding-x = 12
+window-padding-y = 12
+window-padding-balance = true
+window-padding-color = extend
+
+background-opacity = 0.90
+background-blur = true
+
+window-theme = auto
+window-inherit-font-size = true
+
+
+# ─── Shell ────────────────────────────────────────────
+
+shell-integration = fish
+shell-integration-features = no-cursor,sudo,title,ssh-env,ssh-terminfo,path
+
+window-inherit-working-directory = true
+tab-inherit-working-directory = true
+split-inherit-working-directory = true
+
+
+# ─── Scrollback ───────────────────────────────────────
+
+scrollback-limit = 10000
+
+
+# ─── Clipboard ────────────────────────────────────────
+
+copy-on-select = true
+
+clipboard-read = ask
+clipboard-write = allow
+clipboard-trim-trailing-spaces = true
+clipboard-paste-protection = true
+
+
+# ─── Basic Keybinds ───────────────────────────────────
+
+# Tabs
+keybind = ctrl+shift+t=new_tab
+keybind = ctrl+shift+w=close_surface
+keybind = ctrl+shift+]=next_tab
+keybind = ctrl+shift+[=previous_tab
+
+# Font size
+keybind = ctrl+plus=increase_font_size:1
+keybind = ctrl+minus=decrease_font_size:1
+keybind = ctrl+0=reset_font_size
+
+
+# ─── Notifications ───────────────────────────────────
+
+desktop-notifications = true
+bell-features = title,attention
+
+notify-on-command-finish = unfocused
+notify-on-command-finish-after = 15s
+notify-on-command-finish-action = bell,notify
+
+
+# ─── Links ────────────────────────────────────────────
+
+link-url = true
+
+
+# ─── AI / Long Output ─────────────────────────────────
+
+scroll-to-bottom = keystroke,output
+
+selection-clear-on-typing = true
+selection-clear-on-copy = true
+
+
+# ─── Environment ──────────────────────────────────────
+
+env = GHOSTTY=1
+
