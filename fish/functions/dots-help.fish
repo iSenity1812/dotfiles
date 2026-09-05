@@ -67,5 +67,7 @@ function dots-help
         'gps TEXT → tìm commit đã thêm/xóa một đoạn text' \
         'gcontrib → contributors theo số commit' \
         'fglog    → browse commits bằng fzf + preview diff' \
+        'fpr      → browse Pull Requests bằng fzf, preview chi tiết, Enter xem terminal, Ctrl+O mở web' \
+        'fissue   → browse Issues bằng fzf, preview chi tiết, Enter xem terminal, Ctrl+O mở web' \
         | batcat --language=markdown --style=plain --paging=never
 end
