@@ -62,3 +62,4 @@ These dotfiles are symlinked from this repository into their expected locations 
 
 The setup is intentionally small and focused on terminal productivity.
 
+
