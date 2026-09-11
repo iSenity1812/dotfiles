@@ -1,0 +1,214 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+notes_root="${NOTES_ROOT:-/home/asaniee/notes}"
+projects_dir="$notes_root/projects"
+open_editor=1
+
+usage() {
+  cat <<'EOF'
+Usage:
+  npr [options] <project> daily
+  npr [options] <project> <bucket> <type> <slug>
+  npr
+
+Options:
+  -t, --tags CSV        Example: ar-imms,collector
+  -T, --topics CSV      Example: opentelemetry,bootstrap
+  -k, --keywords CSV    Example: otelcol-contrib,checksum
+  -s, --status STATUS   Default: active (archive: archived)
+      --open            Open in nvim after creation (default)
+      --no-open         Create only
+  -h, --help
+EOF
+}
+
+yaml_list() {
+  local field="$1" csv="$2" item escaped
+  local -a items
+
+  IFS=',' read -r -a items <<<"$csv"
+  printf '%s: [' "$field"
+
+  for i in "${!items[@]}"; do
+    item="$(printf '%s' "${items[$i]}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+    escaped="${item//\\/\\\\}"
+    escaped="${escaped//\"/\\\"}"
+    ((i > 0)) && printf ', '
+    printf '"%s"' "$escaped"
+  done
+
+  printf ']\n'
+}
+
+title_from_slug() {
+  printf '%s' "$1" | tr '-' ' ' | awk '
+    {
+      for (i = 1; i <= NF; i++)
+        $i = toupper(substr($i, 1, 1)) substr($i, 2)
+      print
+    }
+  '
+}
+
+choose() {
+  local prompt="$1"
+  shift
+  printf '%s\n' "$@" | fzf --prompt="$prompt"
+}
+
+tags=""
+topics=""
+keywords=""
+status=""
+positionals=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+  -t | --tags)
+    tags="${2:?Missing value for $1}"
+    shift 2
+    ;;
+  -T | --topics)
+    topics="${2:?Missing value for $1}"
+    shift 2
+    ;;
+  -k | --keywords)
+    keywords="${2:?Missing value for $1}"
+    shift 2
+    ;;
+  -s | --status)
+    status="${2:?Missing value for $1}"
+    shift 2
+    ;;
+  --open)
+    open_editor=1
+    shift
+    ;;
+  --no-open)
+    open_editor=0
+    shift
+    ;;
+  -h | --help)
+    usage
+    exit 0
+    ;;
+  --)
+    shift
+    positionals+=("$@")
+    break
+    ;;
+  -*)
+    echo "Unknown option: $1" >&2
+    usage >&2
+    exit 1
+    ;;
+  *)
+    positionals+=("$1")
+    shift
+    ;;
+  esac
+done
+
+set -- "${positionals[@]}"
+
+if [[ $# -eq 0 ]]; then
+  command -v fzf >/dev/null || {
+    echo "fzf is required for interactive mode." >&2
+    exit 1
+  }
+  command -v fdfind >/dev/null || {
+    echo "fdfind is required for interactive mode." >&2
+    exit 1
+  }
+
+  project="$(
+    fdfind --max-depth 1 --type d . "$projects_dir" --format '{/}\n' |
+      fzf --prompt='Project > '
+  )"
+  bucket="$(choose 'Bucket > ' inbox daily work reference archive)"
+
+  if [[ "$bucket" == "daily" ]]; then
+    set -- "$project" daily
+  else
+    type="$(choose 'Type > ' meeting plan decision investigation idea note)"
+    read -r -p "Slug > " slug
+    set -- "$project" "$bucket" "$type" "$slug"
+  fi
+fi
+
+project="${1:-}"
+bucket="${2:-}"
+
+[[ -n "$project" && -n "$bucket" ]] || {
+  usage >&2
+  exit 1
+}
+
+project_dir="$projects_dir/$project"
+[[ -d "$project_dir" ]] || {
+  echo "Project not found: $project" >&2
+  exit 1
+}
+
+case "$bucket" in
+inbox | daily | work | reference | archive) ;;
+*)
+  echo "Invalid bucket: $bucket" >&2
+  exit 1
+  ;;
+esac
+
+date_only="$(date '+%Y-%m-%d')"
+created="$(date '+%Y-%m-%dT%H:%M:%S%:z')"
+target_dir="$project_dir/$bucket"
+mkdir -p "$target_dir"
+
+if [[ "$bucket" == "daily" ]]; then
+  file="$target_dir/$date_only.md"
+  [[ -e "$file" ]] || {
+    printf -- '---\ncreated: %s\n---\n\n# %s\n' "$created" "$date_only" >"$file"
+  }
+else
+  type="${3:-}"
+  slug="${4:-}"
+
+  [[ "$type" =~ ^(meeting|plan|decision|investigation|idea|note)$ ]] ||
+    {
+      echo "Invalid type: $type" >&2
+      exit 1
+    }
+
+  [[ "$slug" =~ ^[a-z0-9][a-z0-9-]*$ ]] ||
+    {
+      echo "Slug must use lowercase letters, numbers, and hyphens only." >&2
+      exit 1
+    }
+
+  file="$target_dir/$date_only--$type-$slug.md"
+
+  [[ ! -e "$file" ]] || {
+    echo "Note already exists: $file" >&2
+    exit 1
+  }
+
+  [[ -n "$status" ]] || {
+    [[ "$bucket" == "archive" ]] && status="archived" || status="active"
+  }
+
+  {
+    printf -- '---\n'
+    [[ "$bucket" != "inbox" ]] && printf 'type: %s\nstatus: %s\n' "$type" "$status"
+    printf 'created: %s\n' "$created"
+    [[ -n "$tags" ]] && yaml_list "tags" "$tags"
+    [[ -n "$topics" ]] && yaml_list "topics" "$topics"
+    [[ -n "$keywords" ]] && yaml_list "keywords" "$keywords"
+    printf -- '---\n\n# %s\n' "$(title_from_slug "$slug")"
+  } >"$file"
+fi
+
+echo "Created: $file"
+
+if ((open_editor)); then
+  exec nvim "$file"
+fi

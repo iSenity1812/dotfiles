@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+notes_root="/home/asaniee/notes"
+inbox_dir="$notes_root/inbox"
+
+if [[ $# -ne 1 ]]; then
+  echo "Usage: nib <file-name>"
+  echo "Example: nib machine-learning"
+  exit 1
+fi
+
+slug="$1"
+
+if [[ ! "$slug" =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
+  echo "Error: file-name must use lowercase letters, numbers, and hyphens only."
+  exit 1
+fi
+
+mkdir -p "$inbox_dir"
+
+file="$inbox_dir/$(date +%F)_${slug}.md"
+
+if [[ -e "$file" ]]; then
+  echo "Error: note already exists: $file"
+  exit 1
+fi
+
+: > "$file"
+echo "Created: $file"
+
+exec nvim "$file"

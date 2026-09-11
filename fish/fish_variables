@@ -1,4 +1,5 @@
 # This file contains fish universal variable definitions.
 # VERSION: 3.0
+SETUVAR --export DOTFILES:/home/asaniee/dotfiles
 SETUVAR --export PNPM_HOME:/home/asaniee/\x2elocal/share/pnpm
-SETUVAR fish_user_paths:/home/asaniee/\x2elocal/share/pnpm/bin\x1e/home/asaniee/\x2elocal/bin
+SETUVAR fish_user_paths:/home/asaniee/dotfiles/bin\x1e/home/asaniee/\x2elocal/share/pnpm/bin\x1e/home/asaniee/\x2elocal/bin
