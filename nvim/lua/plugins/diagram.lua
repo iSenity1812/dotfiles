@@ -5,6 +5,13 @@ return {
     opts = {
       backend = "kitty",
       processor = "magick_cli",
+
+      integrations = {
+        markdown = {
+          enabled = false,
+        },
+      },
+
       hijack_file_patterns = {
         "*.png",
         "*.jpg",

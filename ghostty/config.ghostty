@@ -9,10 +9,10 @@
 
 # ─── Font ─────────────────────────────────────────────
 
-font-family = Hack Nerd Font Mono
+font-family = JetBrainsMono Nerd Font Mono
 font-size = 13
 
-adjust-cell-height = 2
+adjust-cell-height = 25%
 
 font-feature = -calt
 font-feature = -liga
