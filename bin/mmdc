@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+exec "$HOME/.local/share/pnpm/bin/mmdc" \
+  -p "$HOME/.config/mermaid/puppeteer.json" \
+  "$@"
